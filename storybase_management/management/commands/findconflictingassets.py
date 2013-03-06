@@ -5,7 +5,6 @@ try:
 except ImportError:
     texttable = None
 from django.core.management.base import BaseCommand
-from storybase_story.models import Section, SectionAsset
 
 class Command(BaseCommand):
     help = 'Identify assets assigned to the same section container.  See https://github.com/PitonFoundation/atlas/issues/535'
@@ -39,13 +38,14 @@ class Command(BaseCommand):
                 table.set_cols_width(cols_width)
                 table.header(self.cols)
             else:
-                self.stdout.write("%s\n" % (self.cols.join(" | ")))
+                self.stdout.write("%s\n" % (" | ".join(self.cols)))
                 
     def add_row(self, sa, csv_writer=None, table=None):
+        container_name = sa.container.name if sa.container else "None"
         row = [
             sa.section.section_id,
             sa.asset.asset_id,
-            sa.container.name,
+            container_name,
             sa.weight,
             sa.section.title,
             sa.section.story.title,
@@ -59,7 +59,8 @@ class Command(BaseCommand):
             if table:
                 table.add_row(row)
             else:
-                self.stdout.write("%s\n" % (row.join(" | ")))
+                self.stdout.write("%s\n" % (" | ".join(
+                    [str(col) for col in row])))
 
     def render(self, csv_writer=None, table=None):
         if table:
@@ -70,20 +71,20 @@ class Command(BaseCommand):
          
     def find_conflicts(self):
         """Find all conflicting assets"""
+        from storybase_story.models import Section, SectionAsset
         conflicts = {}
 
         for section in Section.objects.all():
             seen = {}
             scn_conflicts = []
             for sa in SectionAsset.objects.filter(section=section):
-                key = "%s:%s:%d" % (section.section_id, sa.container.name, sa.weight)
+                container_name = sa.container.name if sa.container else "None"
+                key = "%s:%s:%d" % (section.section_id, container_name, sa.weight)
                 if key in seen:
                     if len(seen[key]) == 1:
                         # First time we run into a conflict
                         # Make an entry in the conflicts dict
                         scn_conflicts.append(key)
-                        # First time we run into conflict, show a message
-                        #print "multiple assets found for section %s (%s), container %s and weight %d in story %s (%s)" % (section.title, section.section_id, sa.container, sa.weight, section.story.title, section.story.story_id)
                 else:
                     seen[key] = []
                 seen[key].append(sa)
