@@ -65,7 +65,7 @@ class Command(BaseCommand):
         if table:
             self.stdout.write(table.draw())
 
-        if csv_writer is not None:
+        if csv_writer is None:
             self.stdout.write("\n\n")
          
     def find_conflicts(self):
@@ -76,7 +76,7 @@ class Command(BaseCommand):
             seen = {}
             scn_conflicts = []
             for sa in SectionAsset.objects.filter(section=section):
-                key = "%s:%s:%d" % (section.section_id, sa.container, sa.weight)
+                key = "%s:%s:%d" % (section.section_id, sa.container.name, sa.weight)
                 if key in seen:
                     if len(seen[key]) == 1:
                         # First time we run into a conflict
