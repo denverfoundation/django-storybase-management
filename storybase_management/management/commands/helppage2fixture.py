@@ -89,7 +89,7 @@ class Command(BaseCommand):
             section_title = get_section_title(el, section_selector)
             help_translation = HelpTranslation(title=title, body=body, language=language)
             help_translation.translation_id = str(uuid.uuid4()).replace('-', '')
-            help_item = Help()
+            help_item = Help(searchable=True)
             help_item.help_id = str(uuid.uuid4()).replace('-', '')
             help_items.append(help_item)
             help_translation.help = help_item
