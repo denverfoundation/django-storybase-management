@@ -9,9 +9,7 @@ import uuid
 from django.core import serializers
 from django.core.management.base import BaseCommand, CommandError
 
-from cms.models import Page, Placeholder
-from cms.plugins.text.models import Text
-
+from storybase.utils import slugify
 from storybase_help.models import Help, HelpTranslation
 
 class Command(BaseCommand):
@@ -89,8 +87,9 @@ class Command(BaseCommand):
             section_title = get_section_title(el, section_selector)
             help_translation = HelpTranslation(title=title, body=body, language=language)
             help_translation.translation_id = str(uuid.uuid4()).replace('-', '')
-            help_item = Help(searchable=True)
-            help_item.help_id = str(uuid.uuid4()).replace('-', '')
+            help_item = Help(searchable=True,
+                help_id=str(uuid.uuid4()).replace('-', ''),
+                slug=slugify(title))
             help_items.append(help_item)
             help_translation.help = help_item
             help_items.append(help_translation)
