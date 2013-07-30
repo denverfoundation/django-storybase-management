@@ -11,6 +11,7 @@ from cmsplugin_storybase.cms_plugins import HelpPlugin
 from storybase_help.models import Help
 
 class Command(BaseCommand):
+    args = '<sections-csv-file>'
     help = 'Add help imported help items to a CMS page'
     option_list = BaseCommand.option_list + (
         make_option('--language',
@@ -18,21 +19,21 @@ class Command(BaseCommand):
             type='string',
             dest='language',
             default='en',
-            help="Language code for translation objects",
+            help="Language code for translation objects. Default is 'en'",
         ),
         make_option('-p', '--page',
             action='store',
             type='string',
             dest='page_slug',
             default='help',
-            help='Slug of page that help items will be added to',
+            help='Slug of page that help items will be added to. Default is "help"',
         ),
         make_option('--placeholder',
             action='store',
             type='string',
             dest='placeholder_slot',
             default='twocol-content',
-            help='Slot of placeholder that help items will be added to',
+            help='Slot of placeholder that help items will be added to. Default is "twocol-content"',
         ),
         make_option('--noinput',
             action='store_false', dest='interactive', default=True,
