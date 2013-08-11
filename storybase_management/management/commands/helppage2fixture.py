@@ -13,6 +13,7 @@ from storybase.utils import slugify
 from storybase_help.models import Help, HelpTranslation
 
 class Command(BaseCommand):
+    args = '<help-page-url>'
     help = 'Convert help from a Django CMS page into a fixture of Help model instances'
     option_list = BaseCommand.option_list + (
         make_option('--language',
