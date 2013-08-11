@@ -31,5 +31,6 @@ setup(
     install_requires = [
         'django',
         'name_generator',
+        'requests',
     ],
 )
