@@ -15,16 +15,22 @@ class Command(BaseCommand):
         # the sumary field
         total_title_length = 0
         total_summary_length = 0
+        total_summary_words = 0
         queryset = Story.objects.published()
         num_objects = queryset.count()
         for story in queryset:
             total_title_length += len(story.title)
-            total_summary_length += len(strip_tags(story.summary))
-        return (total_title_length / num_objects, total_summary_length / num_objects) 
+            stripped_summary = strip_tags(story.summary)
+            total_summary_length += len(stripped_summary)
+            total_summary_words += len(stripped_summary.split())
+        return (total_title_length / num_objects,
+                total_summary_length / num_objects,
+                total_summary_words / num_objects) 
 
     def handle(self, *args, **options):
-        avg_story_title_length, avg_story_summary_length = self.get_story_info()
+        avg_story_title_length, avg_story_summary_length, avg_story_summary_words = self.get_story_info()
         self.stdout.write("Story\n")
         self.stdout.write("-----\n\n")
         self.stdout.write("Average title length: %d\n" % avg_story_title_length)
         self.stdout.write("Average summary length: %d\n" % avg_story_summary_length)
+        self.stdout.write("Average summary words: %d\n" % avg_story_summary_words)
