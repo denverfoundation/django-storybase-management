@@ -30,7 +30,9 @@ setup(
     ],
     install_requires = [
         'django',
-        'name_generator',
         'requests',
     ],
+    extras_require = {
+        'name_generation': ['name_generator',],
+    },
 )

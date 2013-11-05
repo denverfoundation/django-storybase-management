@@ -1,9 +1,14 @@
 import os
 from optparse import make_option
-from name_generator import parse_data, generate_names
-from name_generator.wc import WeightedChoice
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 from django.contrib.auth.models import User
+
+try:
+    import name_generator
+    from name_generator.wc import WeightedChoice
+except ImportError:
+    name_generator = None
+    WeightedChoice = None
 
 class Command(BaseCommand):
     help = 'Remove sensitive user data'
@@ -28,6 +33,11 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         from storybase_user.utils import is_admin
+
+        if name_generator is None:
+            raise CommandError("To use this management command, you need to "
+                    "install the name_generator package from "
+                    "https://github.com/macropin/random-name-generator")
        
         interactive = options.get('interactive')
 
@@ -42,13 +52,13 @@ Type 'yes' to continue, or 'no' to cancel """)
 
         if confirm == 'yes':
             file_path = lambda x: os.path.join(options['name_data_dir'], x)
-            first_data = parse_data(file_path('dist.female.first')) + parse_data(file_path('dist.male.first'))
-            last_data = parse_data(file_path('dist.all.last'))
+            first_data = name_generator.parse_data(file_path('dist.female.first')) + name_generator.parse_data(file_path('dist.male.first'))
+            last_data = name_generator.parse_data(file_path('dist.all.last'))
             first_wc = WeightedChoice(first_data)
             last_wc = WeightedChoice(last_data)
 
             users = User.objects.all()
-            names = generate_names(first_wc, last_wc, users.count(), True)
+            names = name_generator.generate_names(first_wc, last_wc, users.count(), True)
 
             for i, user in enumerate(users):
                 if options['skip_admins'] and is_admin(user):
